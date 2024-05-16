@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package product.internal.pb;
+option go_package = "github.com/tanush-128/openzo_backend/product/internal/pb";
+
+
+service ProductService {
+  
+  // rpc GetFCMToken(StoreId) returns (FCMToken) {}
+  rpc ChangeProductQuantity(ChangeProductQuantityRequest)  returns(ChangeProductQuantityResponse) {}
+  
+  // Add more RPC methods for other user operations
+}
+
+message ChangeProductQuantityRequest {
+    string productId = 2;
+    int32 quantity = 3;
+}
+
+message ChangeProductQuantityResponse {
+    string status = 1;
+}
+
+
+// To generate the go code from the proto file, run the following command
+// protoc --go_out=. --go_opt=paths=source_relative \
+//     --go-grpc_out=. --go-grpc_opt=paths=source_relative \
+//     product.proto
