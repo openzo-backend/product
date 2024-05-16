@@ -37,7 +37,7 @@ func main() {
 	// reflection.Register(grpcServer) // Optional for server reflection
 
 	//Initialize gRPC client
-	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure())
+	conn, err := grpc.Dial(cfg.UserGrpc, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -45,7 +45,7 @@ func main() {
 	c := pb.NewUserServiceClient(conn)
 	UserClient = c
 
-	imageConn, err := grpc.Dial("localhost:50055", grpc.WithInsecure())
+	imageConn, err := grpc.Dial(cfg.ImageGrpc, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
