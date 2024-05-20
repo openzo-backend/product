@@ -9,7 +9,7 @@ type Product struct {
 	MSRP            int            `json:"msrp"`
 	DiscountPrice   int            `json:"discount_price"`
 	Quantity        int            `json:"quantity"`
-	Images          []ProductImage `json:"images"`
+	Images          []ProductImage `json:"images" gorm:"foreignKey:ProductID;references:ID"`
 	Brand           string         `json:"brand"`
 	CrticalQuantity int            `json:"critical_quantity"`
 	CustomCode      string         `json:"custom_code"`
@@ -21,17 +21,16 @@ type Product struct {
 }
 
 type SizeVariant struct {
-	ID        int    `json:"id"`
-	ProductID string `json:"product_id"`
+	ID        int    `json:"id" gorm:"primaryKey"`
+	ProductID string `json:"product_id" gorm:"size:36;index"`
 	Size      string `json:"size"`
 	Price     int    `json:"price"`
 	Quantity  int    `json:"quantity"`
 }
 
-
 type ColorVariant struct {
 	ID        int    `json:"id"`
-	ProductID string `json:"product_id"`
+	ProductID string `json:"product_id" gorm:"size:36;index"`
 	Color     string `json:"color"`
 	Price     int    `json:"price"`
 	Quantity  int    `json:"quantity"`
@@ -39,6 +38,6 @@ type ColorVariant struct {
 
 type ProductImage struct {
 	ID        int    `json:"id"`
-	ProductID string `json:"product_id"`
+	ProductID string `json:"product_id" gorm:"size:36;index"`
 	Image     string `json:"image" gorm:"type:text"`
 }
