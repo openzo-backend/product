@@ -69,10 +69,17 @@ func (r *productRepository) DeleteProduct(id string) error {
 }
 
 func (r *productRepository) UpdateProduct(Product models.Product) (models.Product, error) {
-	tx := r.db.Save(&Product)
+	var product models.Product
+	tx := r.db.Where("id = ?", Product.ID).First(&product)
 	if tx.Error != nil {
 		return models.Product{}, tx.Error
 	}
+
+	tx = r.db.Save(&Product)
+	if tx.Error != nil {
+		return models.Product{}, tx.Error
+	}
+	Product.Images = product.Images
 
 	return Product, nil
 }
