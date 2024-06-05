@@ -1,23 +1,35 @@
 package models
 
 type Product struct {
-	ID              string         `json:"id" gorm:"primaryKey"`
-	Name            string         `json:"name"`
-	Description     string         `json:"description"`
-	QuantityUnit    string         `json:"quantity_unit" default:"Peice"`
-	MRP             int            `json:"mrp"`
-	MSRP            int            `json:"msrp"`
-	DiscountPrice   int            `json:"discount_price"`
-	Quantity        int            `json:"quantity"`
-	Images          []ProductImage `json:"images" gorm:"foreignKey:ProductID;references:ID"`
-	Brand           string         `json:"brand"`
-	CrticalQuantity int            `json:"critical_quantity"`
-	CustomCode      string         `json:"custom_code"`
-	SizeVariants    []SizeVariant  `json:"size_variants"`
-	ColorVariants   []ColorVariant `json:"color_variants"`
-	Category        string         `json:"category"`
-	Barcode         string         `json:"barcode"`
-	StoreID         string         `json:"store_id"`
+	ID      string `json:"id" gorm:"primaryKey"`
+	StoreID string `json:"store_id"`
+
+	Name          string         `json:"name"`
+	Description   string         `json:"description"`
+	QuantityUnit  string         `json:"quantity_unit" default:"Peice"`
+	MRP           int            `json:"mrp"`
+	DiscountPrice int            `json:"discount_price" gorm:"default:0"`
+	Images        []ProductImage `json:"images" gorm:"foreignKey:ProductID;references:ID"`
+	Brand         string         `json:"brand"`
+	Barcode       string         `json:"barcode"`
+
+	Category      string         `json:"category"`
+	SizeVariants  []SizeVariant  `json:"size_variants"`
+	ColorVariants []ColorVariant `json:"color_variants"`
+
+	Type string `json:"type,omitempty"`
+
+	VegType string `json:"veg_type,omitempty"`
+	Servers int    `json:"servers,omitempty"`
+
+	ProductPrivate
+}
+
+type ProductPrivate struct {
+	MSRP            int    `json:"msrp,,omitempty"`
+	Quantity        int    `json:"quantity,omitempty"`
+	CrticalQuantity int    `json:"critical_quantity,omitempty"`
+	CustomCode      string `json:"custom_code,omitempty"`
 }
 
 type SizeVariant struct {
