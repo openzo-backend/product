@@ -33,6 +33,9 @@ func (h *Handler) CreateProduct(ctx *gin.Context) {
 	product.Quantity = utils.StringToInt(ctx.PostForm("quantity"))
 	product.Brand = ctx.PostForm("brand")
 	product.CrticalQuantity = utils.StringToInt(ctx.PostForm("critical_quantity"))
+	product.Type = ctx.PostForm("type")
+	product.VegType = ctx.PostForm("veg_type")
+	product.Servers = utils.StringToInt(ctx.PostForm("servers"))
 	product.CustomCode = ctx.PostForm("custom_code")
 	product.SizeVariants = []models.SizeVariant{}
 	product.ColorVariants = []models.ColorVariant{}
@@ -92,6 +95,9 @@ func (h *Handler) UpdateProduct(ctx *gin.Context) {
 	product.Brand = ctx.PostForm("brand")
 	product.CrticalQuantity = utils.StringToInt(ctx.PostForm("critical_quantity"))
 	product.CustomCode = ctx.PostForm("custom_code")
+	product.Type = ctx.PostForm("type")
+	product.VegType = ctx.PostForm("veg_type")
+	product.Servers = utils.StringToInt(ctx.PostForm("servers"))
 	product.SizeVariants = []models.SizeVariant{}
 	product.ColorVariants = []models.ColorVariant{}
 	product.Images = []models.ProductImage{}
