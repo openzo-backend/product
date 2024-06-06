@@ -74,12 +74,14 @@ func (s *productService) UpdateProduct(ctx *gin.Context, req models.Product) (mo
 		return models.Product{}, err
 	}
 
-	req.Images = product.Images
+	// req.Images = product.Images
 
 	updatedProduct, err := s.ProductRepository.UpdateProduct(req)
 	if err != nil {
 		return models.Product{}, err
 	}
+
+	updatedProduct.Images = product.Images
 
 	return updatedProduct, nil
 }
