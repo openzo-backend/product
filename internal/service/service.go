@@ -1,8 +1,10 @@
 package service
 
 import (
+	"encoding/json"
 	"log"
 
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/gin-gonic/gin"
 	"github.com/tanush-128/openzo_backend/product/internal/models"
 	"github.com/tanush-128/openzo_backend/product/internal/pb"
@@ -23,12 +25,13 @@ type ProductService interface {
 type productService struct {
 	ProductRepository repository.ProductRepository
 	imageClient       pb.ImageServiceClient
+	kafkaProducer     *kafka.Producer
 }
 
 func NewProductService(ProductRepository repository.ProductRepository,
-	imageClient pb.ImageServiceClient,
+	imageClient pb.ImageServiceClient, kafkaProducer *kafka.Producer,
 ) ProductService {
-	return &productService{ProductRepository: ProductRepository, imageClient: imageClient}
+	return &productService{ProductRepository: ProductRepository, imageClient: imageClient, kafkaProducer: kafkaProducer}
 }
 
 func (s *productService) CreateProduct(ctx *gin.Context, req models.Product) (models.Product, error) {
@@ -63,8 +66,22 @@ func (s *productService) CreateProduct(ctx *gin.Context, req models.Product) (mo
 	if err != nil {
 		return models.Product{}, err // Propagate error
 	}
-
+	go writeProductToKafka(s.kafkaProducer, createdProduct)
 	return createdProduct, nil
+}
+
+func writeProductToKafka(p *kafka.Producer, product models.Product) {
+	// Produce messages to topic (asynchronously)
+	topic := "products"
+
+	value, _ := json.Marshal(product)
+
+	p.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+		Key:            []byte(product.ID),
+		Value:          value,
+	}, nil)
+
 }
 
 func (s *productService) UpdateProduct(ctx *gin.Context, req models.Product) (models.Product, error) {
@@ -82,7 +99,7 @@ func (s *productService) UpdateProduct(ctx *gin.Context, req models.Product) (mo
 	}
 
 	updatedProduct.Images = product.Images
-
+	go writeProductToKafka(s.kafkaProducer, updatedProduct)
 	return updatedProduct, nil
 }
 

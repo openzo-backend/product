@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/gin-gonic/gin"
 	"github.com/tanush-128/openzo_backend/product/config"
 	handlers "github.com/tanush-128/openzo_backend/product/internal/api"
@@ -31,6 +32,26 @@ func main() {
 		log.Fatal(fmt.Errorf("failed to connect to database: %w", err))
 	}
 
+	conf := ReadConfig()
+	p, _ := kafka.NewProducer(&conf)
+	// topic := "notification"
+
+	// go-routine to handle message delivery reports and
+	// possibly other event types (errors, stats, etc)
+	go func() {
+		for e := range p.Events() {
+			switch ev := e.(type) {
+			case *kafka.Message:
+				if ev.TopicPartition.Error != nil {
+					fmt.Printf("Failed to deliver message: %v\n", ev.TopicPartition)
+				} else {
+					fmt.Printf("Produced event to topic %s: key = %-10s value = %s\n",
+						*ev.TopicPartition.Topic, string(ev.Key), string(ev.Value))
+				}
+			}
+		}
+	}()
+
 	// Initialize gRPC server
 	// grpcServer := grpc.NewServer()
 
@@ -53,7 +74,7 @@ func main() {
 	imageClient := pb.NewImageServiceClient(imageConn)
 
 	productRepository := repository.NewProductRepository(db)
-	productService := service.NewProductService(productRepository, imageClient)
+	productService := service.NewProductService(productRepository, imageClient,p)
 
 	go service.GrpcServer(cfg, &service.Server{
 		ProductRepository: productRepository,
