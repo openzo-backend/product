@@ -18,6 +18,7 @@ type ProductService interface {
 	CreateProduct(ctx *gin.Context, req models.Product) (models.Product, error)
 	GetProductByID(ctx *gin.Context, id string) (models.Product, error)
 	GetProductsByStoreID(ctx *gin.Context, storeID string) ([]models.Product, error)
+	ChangeProductQuantity(ctx *gin.Context, id string, quantity int) error
 	UpdateProduct(ctx *gin.Context, req models.Product) (models.Product, error)
 	DeleteProduct(ctx *gin.Context, id string) error
 }
@@ -101,6 +102,15 @@ func (s *productService) UpdateProduct(ctx *gin.Context, req models.Product) (mo
 	updatedProduct.Images = product.Images
 	go writeProductToKafka(s.kafkaProducer, updatedProduct)
 	return updatedProduct, nil
+}
+
+func (s *productService) ChangeProductQuantity(ctx *gin.Context, id string, quantity int) error {
+	err := s.ProductRepository.ChangeProductQuantity(id, quantity)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *productService) DeleteProduct(ctx *gin.Context, id string) error {

@@ -91,7 +91,7 @@ func (r *productRepository) ChangeProductQuantity(id string, quantity int) error
 		return tx.Error
 	}
 
-	Product.Quantity = Product.Quantity - quantity
+	Product.Quantity = quantity
 	tx = r.db.Save(&Product)
 	if tx.Error != nil {
 		return tx.Error

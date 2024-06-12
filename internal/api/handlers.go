@@ -81,7 +81,7 @@ func (h *Handler) GetProductsByStoreID(ctx *gin.Context) {
 func (h *Handler) UpdateProduct(ctx *gin.Context) {
 
 	var product models.Product
-	product.ID = ctx.Param("id")
+	product.ID = ctx.PostForm("id")
 	product.Name = ctx.PostForm("name")
 	product.Description = ctx.PostForm("description")
 	product.QuantityUnit = ctx.PostForm("quantity_unit")
@@ -112,6 +112,19 @@ func (h *Handler) UpdateProduct(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, updatedProduct)
+}
+
+func (h *Handler) ChangeProductQuantity(ctx *gin.Context) {
+	id := ctx.Param("id")
+	quantity := utils.StringToInt(ctx.Query("quantity"))
+
+	err := h.ProductService.ChangeProductQuantity(ctx, id, quantity)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Product quantity updated successfully"})
 }
 
 func (h *Handler) DeleteProduct(ctx *gin.Context) {

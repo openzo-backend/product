@@ -74,7 +74,7 @@ func main() {
 	imageClient := pb.NewImageServiceClient(imageConn)
 
 	productRepository := repository.NewProductRepository(db)
-	productService := service.NewProductService(productRepository, imageClient,p)
+	productService := service.NewProductService(productRepository, imageClient, p)
 
 	go service.GrpcServer(cfg, &service.Server{
 		ProductRepository: productRepository,
@@ -94,7 +94,8 @@ func main() {
 	router.GET("/store/:id", handler.GetProductsByStoreID)
 	router.GET("/:id", handler.GetProductByID)
 	router.Use(middlewares.NewMiddleware(c).JwtMiddleware)
-	router.PUT("/:id", handler.UpdateProduct)
+	router.PUT("/:id", handler.ChangeProductQuantity)
+	router.PUT("/", handler.UpdateProduct)
 	router.DELETE("/:id", handler.DeleteProduct)
 
 	// router.Use(middlewares.JwtMiddleware)
