@@ -39,6 +39,7 @@ func (h *Handler) CreateProduct(ctx *gin.Context) {
 	product.CustomCode = ctx.PostForm("custom_code")
 	product.SizeVariants = []models.SizeVariant{}
 	product.ColorVariants = []models.ColorVariant{}
+	product.OutOfStock = ctx.PostForm("out_of_stock") == "true"
 
 	json.Unmarshal([]byte(ctx.PostForm("size_variants")), &product.SizeVariants)
 	json.Unmarshal([]byte(ctx.PostForm("color_variants")), &product.ColorVariants)
@@ -101,6 +102,7 @@ func (h *Handler) UpdateProduct(ctx *gin.Context) {
 	product.SizeVariants = []models.SizeVariant{}
 	product.ColorVariants = []models.ColorVariant{}
 	product.Images = []models.ProductImage{}
+	product.OutOfStock = ctx.PostForm("out_of_stock") == "true"
 
 	json.Unmarshal([]byte(ctx.PostForm("size_variants")), &product.SizeVariants)
 	json.Unmarshal([]byte(ctx.PostForm("color_variants")), &product.ColorVariants)

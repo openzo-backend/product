@@ -19,9 +19,9 @@ type Product struct {
 
 	Type string `json:"type,omitempty"`
 
-	VegType string `json:"veg_type,omitempty"`
-	Servers int    `json:"servers,omitempty"`
-
+	VegType    string `json:"veg_type,omitempty"`
+	Servers    int    `json:"servers,omitempty"`
+	OutOfStock bool   `json:"out_of_stock" gorm:"default:false"`
 	ProductPrivate
 }
 
