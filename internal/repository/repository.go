@@ -14,8 +14,6 @@ type ProductRepository interface {
 	UpdateProduct(Product models.Product) (models.Product, error)
 	ChangeProductQuantity(id string, quantity int) error
 	DeleteProduct(id string) error
-	// Add more methods for other Product operations (GetProductByEmail, UpdateProduct, etc.)
-
 }
 
 type productRepository struct {
@@ -75,7 +73,7 @@ func (r *productRepository) DeleteProduct(id string) error {
 		return tx.Error
 	}
 
-	tx = r.db.Model(models.Product{}).Where("id = ?", id)
+	tx = r.db.Where("id = ?", id).Delete(&models.Product{})
 	if tx.Error != nil {
 		return tx.Error
 	}
