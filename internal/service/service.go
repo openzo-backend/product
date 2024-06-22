@@ -92,7 +92,34 @@ func (s *productService) UpdateProduct(ctx *gin.Context, req models.Product) (mo
 		return models.Product{}, err
 	}
 
-	// req.Images = product.Images
+	form, err := ctx.MultipartForm()
+	if err != nil {
+
+		return models.Product{}, err
+	}
+	req.Images = []models.ProductImage{}
+	for _, file := range form.File["images"] {
+		log.Println(file.Filename)
+
+		imageBytes, err := utils.FileHeaderToBytes(file)
+
+		if err != nil {
+			return models.Product{}, err
+		}
+		imageURL, err := s.imageClient.UploadImage(ctx, &pb.ImageMessage{
+			ImageData: imageBytes,
+		})
+		if err != nil {
+			return models.Product{}, err
+		}
+
+		req.Images = append(req.Images, models.ProductImage{
+			Image: imageURL.Url,
+		})
+
+	}
+
+	req.Images = append(req.Images, product.Images...)
 
 	updatedProduct, err := s.ProductRepository.UpdateProduct(req)
 	if err != nil {

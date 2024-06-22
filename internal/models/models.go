@@ -1,9 +1,11 @@
 package models
 
-type Product struct {
-	ID      string `json:"id" gorm:"primaryKey"`
-	StoreID string `json:"store_id"`
+import "time"
 
+type Product struct {
+	ID            string         `json:"id" gorm:"primaryKey"`
+	StoreID       string         `json:"store_id"`
+	CreatedAt     time.Time      `json:"created_at"`
 	Name          string         `json:"name"`
 	Description   string         `json:"description"`
 	QuantityUnit  string         `json:"quantity_unit" default:"Peice"`
@@ -17,7 +19,9 @@ type Product struct {
 	SizeVariants  []SizeVariant  `json:"size_variants"`
 	ColorVariants []ColorVariant `json:"color_variants"`
 
-	Type string `json:"type,omitempty"`
+	Type            string `json:"type,omitempty"`
+	MetaDescription string `json:"meta_description,omitempty"`
+	MetaTags        string `json:"meta_tags,omitempty"`
 
 	VegType    string `json:"veg_type,omitempty"`
 	Servers    int    `json:"servers,omitempty"`
