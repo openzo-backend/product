@@ -126,7 +126,7 @@ func (s *productService) UpdateProduct(ctx *gin.Context, req models.Product) (mo
 		return models.Product{}, err
 	}
 
-	updatedProduct.Images = product.Images
+	updatedProduct.Images = req.Images
 	go writeProductToKafka(s.kafkaProducer, updatedProduct)
 	return updatedProduct, nil
 }
