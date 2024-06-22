@@ -59,8 +59,23 @@ func (r *productRepository) GetProductsByStoreID(id string) ([]models.Product, e
 }
 
 func (r *productRepository) DeleteProduct(id string) error {
-	var Product models.Product
-	tx := r.db.Where("id = ?", id).Delete(&Product)
+
+	tx := r.db.Where("id = ?", id).Delete(&models.ProductImage{})
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	tx = r.db.Where("product_id = ?", id).Delete(&models.SizeVariant{})
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	tx = r.db.Where("product_id = ?", id).Delete(&models.ColorVariant{})
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	tx = r.db.Model(models.Product{}).Where("id = ?", id)
 	if tx.Error != nil {
 		return tx.Error
 	}
