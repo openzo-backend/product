@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Product struct {
-	ID              string         `json:"id" gorm:"primaryKey;size:36"`
+	ID              string         `json:"id" gorm:"primaryKey`
 	StoreID         string         `json:"store_id" gorm:"size:36;not null"`
 	CreatedAt       time.Time      `json:"created_at" gorm:"autoCreateTime"`
 	Name            string         `json:"name" gorm:"not null"`
@@ -11,13 +11,13 @@ type Product struct {
 	QuantityUnit    string         `json:"quantity_unit" gorm:"default:'Piece';not null"`
 	MRP             int            `json:"mrp" gorm:"not null"`
 	DiscountPrice   int            `json:"discount_price" gorm:"default:0"`
-	Images          []ProductImage `json:"images" gorm:"foreignKey:ProductID;references:ID"`
+	Images          []ProductImage `json:"images"`
 	Brand           string         `json:"brand"`
 	Barcode         string         `json:"barcode" gorm:"index;size:36"`
 	Category        string         `json:"category"`
 	DisplayOrder    int            `json:"display_order" gorm:"default:0"`
-	SizeVariants    []SizeVariant  `json:"size_variants" gorm:"foreignKey:ProductID;references:ID"`
-	ColorVariants   []ColorVariant `json:"color_variants" gorm:"foreignKey:ProductID;references:ID"`
+	SizeVariants    []SizeVariant  `json:"size_variants" `
+	ColorVariants   []ColorVariant `json:"color_variants"`
 	Type            string         `json:"type,omitempty"`
 	MetaDescription string         `json:"meta_description,omitempty"`
 	MetaTags        string         `json:"meta_tags,omitempty"`
