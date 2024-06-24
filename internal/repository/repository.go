@@ -12,6 +12,7 @@ type ProductRepository interface {
 	GetProductByID(id string) (models.Product, error)
 	GetProductsByStoreID(id string) ([]models.Product, error)
 	UpdateProduct(Product models.Product) (models.Product, error)
+	UpdateDisplayOrder(id string, displayOrder int) error
 	ChangeProductQuantity(id string, quantity int) error
 	DeleteProduct(id string) error
 }
@@ -25,15 +26,25 @@ func NewProductRepository(db *gorm.DB) ProductRepository {
 	return &productRepository{db: db}
 }
 
-func (r *productRepository) CreateProduct(Product models.Product) (models.Product, error) {
-	Product.ID = uuid.New().String()
-	tx := r.db.Create(&Product)
+func (r *productRepository) CreateProduct(product models.Product) (models.Product, error) {
+	product.ID = uuid.New().String()
 
+	// Set default display order if not provided
+	if product.DisplayOrder == 0 {
+		var maxDisplayOrder int
+		r.db.Model(&models.Product{}).
+			Where("store_id = ?", product.StoreID).
+			Select("COALESCE(MAX(display_order), 0)").
+			Row().Scan(&maxDisplayOrder)
+		product.DisplayOrder = maxDisplayOrder + 1
+	}
+
+	tx := r.db.Create(&product)
 	if tx.Error != nil {
 		return models.Product{}, tx.Error
 	}
 
-	return Product, nil
+	return product, nil
 }
 
 func (r *productRepository) GetProductByID(id string) (models.Product, error) {
@@ -46,14 +57,19 @@ func (r *productRepository) GetProductByID(id string) (models.Product, error) {
 	return Product, nil
 }
 
-func (r *productRepository) GetProductsByStoreID(id string) ([]models.Product, error) {
-	var Products []models.Product
-	tx := r.db.Preload("Images").Preload("SizeVariants").Preload("ColorVariants").Where("store_id = ?", id).Find(&Products)
+func (r *productRepository) GetProductsByStoreID(storeID string) ([]models.Product, error) {
+	var products []models.Product
+	tx := r.db.Preload("Images").
+		Preload("SizeVariants").
+		Preload("ColorVariants").
+		Where("store_id = ?", storeID).
+		Order("category ASC, display_order ASC").
+		Find(&products)
 	if tx.Error != nil {
 		return []models.Product{}, tx.Error
 	}
 
-	return Products, nil
+	return products, nil
 }
 
 func (r *productRepository) DeleteProduct(id string) error {
@@ -73,11 +89,18 @@ func (r *productRepository) DeleteProduct(id string) error {
 		return tx.Error
 	}
 
+	var product models.Product
+	if err := r.db.Where("id = ?", id).First(&product).Error; err != nil {
+		return err
+	}
+
 	tx = r.db.Where("id = ?", id).Delete(&models.Product{})
 	if tx.Error != nil {
 		return tx.Error
 	}
 
+	// Adjust the display order of remaining products
+	r.db.Exec("UPDATE products SET display_order = display_order - 1 WHERE store_id = ? AND display_order > ?", product.StoreID, product.DisplayOrder)
 	return nil
 }
 
@@ -89,6 +112,14 @@ func (r *productRepository) UpdateProduct(Product models.Product) (models.Produc
 	}
 
 	return Product, nil
+}
+
+func (r *productRepository) UpdateDisplayOrder(id string, displayOrder int) error {
+	tx := r.db.Model(&models.Product{}).
+		Where("id = ?", id).
+		Update("display_order", displayOrder)
+
+	return tx.Error
 }
 
 func (r *productRepository) ChangeProductQuantity(id string, quantity int) error {

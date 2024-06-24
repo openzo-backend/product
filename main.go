@@ -96,6 +96,7 @@ func main() {
 	router.Use(middlewares.NewMiddleware(c).JwtMiddleware)
 	router.PUT("/:id", handler.ChangeProductQuantity)
 	router.PUT("/", handler.UpdateProduct)
+	router.PUT("/display_order/:id", handler.UpdateDisplayOrder)
 	router.DELETE("/:id", handler.DeleteProduct)
 
 	// router.Use(middlewares.JwtMiddleware)

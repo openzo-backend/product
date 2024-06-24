@@ -32,7 +32,7 @@ func (h *Handler) CreateProduct(ctx *gin.Context) {
 	product.Category = ctx.PostForm("category")
 	product.Quantity = utils.StringToInt(ctx.PostForm("quantity"))
 	product.Brand = ctx.PostForm("brand")
-	product.CrticalQuantity = utils.StringToInt(ctx.PostForm("critical_quantity"))
+	product.CriticalQuantity = utils.StringToInt(ctx.PostForm("critical_quantity"))
 	product.Type = ctx.PostForm("type")
 	product.VegType = ctx.PostForm("veg_type")
 	product.Servers = utils.StringToInt(ctx.PostForm("servers"))
@@ -94,7 +94,7 @@ func (h *Handler) UpdateProduct(ctx *gin.Context) {
 	product.Category = ctx.PostForm("category")
 	product.Quantity = utils.StringToInt(ctx.PostForm("quantity"))
 	product.Brand = ctx.PostForm("brand")
-	product.CrticalQuantity = utils.StringToInt(ctx.PostForm("critical_quantity"))
+	product.CriticalQuantity = utils.StringToInt(ctx.PostForm("critical_quantity"))
 	product.CustomCode = ctx.PostForm("custom_code")
 	product.Type = ctx.PostForm("type")
 	product.VegType = ctx.PostForm("veg_type")
@@ -114,6 +114,19 @@ func (h *Handler) UpdateProduct(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, updatedProduct)
+}
+
+func (h *Handler) UpdateDisplayOrder(ctx *gin.Context) {
+	id := ctx.Param("id")
+	displayOrder := utils.StringToInt(ctx.Query("display_order"))
+
+	err := h.ProductService.UpdateDisplayOrder(ctx, id, displayOrder)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Product display order updated successfully"})
 }
 
 func (h *Handler) ChangeProductQuantity(ctx *gin.Context) {
