@@ -18,6 +18,15 @@ func NewHandler(ProductService *service.ProductService) *Handler {
 	return &Handler{ProductService: *ProductService}
 }
 
+type ProductDisplayOrderUpdate struct {
+	ProductID    string `json:"product_id"`
+	DisplayOrder int    `json:"display_order"`
+}
+
+type BatchUpdateRequest struct {
+	Updates []ProductDisplayOrderUpdate `json:"updates"`
+}
+
 func (h *Handler) CreateProduct(ctx *gin.Context) {
 	var product models.Product
 
@@ -127,6 +136,29 @@ func (h *Handler) UpdateDisplayOrder(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Product display order updated successfully"})
+}
+
+func (h *Handler) BatchUpdateDisplayOrder(c *gin.Context) {
+	var req BatchUpdateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	products := make([]models.Product, len(req.Updates))
+	for i, update := range req.Updates {
+		products[i] = models.Product{
+			ID:           update.ProductID,
+			DisplayOrder: update.DisplayOrder,
+		}
+	}
+
+	if err := h.ProductService.BatchUpdateDisplayOrder(c, products); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update product display orders"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "success"})
 }
 
 func (h *Handler) ChangeProductQuantity(ctx *gin.Context) {

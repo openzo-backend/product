@@ -14,6 +14,7 @@ type ProductRepository interface {
 	UpdateProduct(Product models.Product) (models.Product, error)
 	UpdateDisplayOrder(id string, displayOrder int) error
 	ChangeProductQuantity(id string, quantity int) error
+	BatchUpdateDisplayOrder(updates []models.Product) error
 	DeleteProduct(id string) error
 }
 
@@ -120,6 +121,17 @@ func (r *productRepository) UpdateDisplayOrder(id string, displayOrder int) erro
 		Update("display_order", displayOrder)
 
 	return tx.Error
+}
+
+func (r *productRepository) BatchUpdateDisplayOrder(updates []models.Product) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		for _, product := range updates {
+			if err := tx.Model(&models.Product{}).Where("id = ?", product.ID).Update("display_order", product.DisplayOrder).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 func (r *productRepository) ChangeProductQuantity(id string, quantity int) error {
