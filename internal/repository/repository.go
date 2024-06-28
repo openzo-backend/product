@@ -107,7 +107,7 @@ func (r *productRepository) DeleteProduct(id string) error {
 
 func (r *productRepository) UpdateProduct(Product models.Product) (models.Product, error) {
 
-	tx := r.db.Save(&Product)
+	tx := r.db.Session(&gorm.Session{FullSaveAssociations: true}).Save(&Product)
 	if tx.Error != nil {
 		return models.Product{}, tx.Error
 	}
