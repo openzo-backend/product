@@ -52,6 +52,11 @@ func main() {
 		}
 	}()
 
+	// Initialize gRPC server
+	// grpcServer := grpc.NewServer()
+
+	// reflection.Register(grpcServer) // Optional for server reflection
+
 	//Initialize gRPC client
 	conn, err := grpc.Dial(cfg.UserGrpc, grpc.WithInsecure())
 	if err != nil {
