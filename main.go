@@ -91,6 +91,7 @@ func main() {
 	// router.Use(middlewares.JwtMiddleware(c))
 	router.POST("/", handler.CreateProduct)
 	router.GET("/store/:id", handler.GetProductsByStoreID)
+	router.GET("post/pincode/:pincode", handler.GetPostByPincode)
 	router.GET("/:id", handler.GetProductByID)
 	// router.Use(middlewares.NewMiddleware(c).JwtMiddleware)
 	router.PUT("/:id", handler.ChangeProductQuantity)

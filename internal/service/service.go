@@ -18,6 +18,7 @@ type ProductService interface {
 	CreateProduct(ctx *gin.Context, req models.Product) (models.Product, error)
 	GetProductByID(ctx *gin.Context, id string) (models.Product, error)
 	GetProductsByStoreID(ctx *gin.Context, storeID string) ([]models.Product, error)
+	GetPostByPincode(ctx *gin.Context, pincode string) ([]models.Product, error)
 	ChangeProductQuantity(ctx *gin.Context, id string, quantity int) error
 	UpdateProduct(ctx *gin.Context, req models.Product) (models.Product, error)
 	UpdateDisplayOrder(ctx *gin.Context, id string, displayOrder int) error
@@ -35,6 +36,33 @@ func NewProductService(ProductRepository repository.ProductRepository,
 	imageClient pb.ImageServiceClient, kafkaProducer *kafka.Producer,
 ) ProductService {
 	return &productService{ProductRepository: ProductRepository, imageClient: imageClient, kafkaProducer: kafkaProducer}
+}
+
+func (s *productService) GetProductByID(ctx *gin.Context, id string) (models.Product, error) {
+	Product, err := s.ProductRepository.GetProductByID(id)
+	if err != nil {
+		return models.Product{}, err
+	}
+
+	return Product, nil
+}
+
+func (s *productService) GetProductsByStoreID(ctx *gin.Context, storeID string) ([]models.Product, error) {
+	Products, err := s.ProductRepository.GetProductsByStoreID(storeID)
+	if err != nil {
+		return []models.Product{}, err
+	}
+
+	return Products, nil
+}
+
+func (s *productService) GetPostByPincode(ctx *gin.Context, pincode string) ([]models.Product, error) {
+	Products, err := s.ProductRepository.GetPostByPincode(pincode)
+	if err != nil {
+		return []models.Product{}, err
+	}
+
+	return Products, nil
 }
 
 func (s *productService) CreateProduct(ctx *gin.Context, req models.Product) (models.Product, error) {

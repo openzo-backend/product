@@ -88,6 +88,18 @@ func (h *Handler) GetProductsByStoreID(ctx *gin.Context) {
 
 }
 
+func (h *Handler) GetPostByPincode(ctx *gin.Context) {
+	pincode := ctx.Param("pincode")
+
+	Products, err := h.ProductService.GetPostByPincode(ctx, pincode)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, Products)
+}
+
 func (h *Handler) UpdateProduct(ctx *gin.Context) {
 
 	var product models.Product
@@ -113,7 +125,6 @@ func (h *Handler) UpdateProduct(ctx *gin.Context) {
 	product.Images = []models.ProductImage{}
 
 	product.OutOfStock = ctx.PostForm("out_of_stock") == "true"
-
 
 	json.Unmarshal([]byte(ctx.PostForm("product_images")), &product.Images)
 	json.Unmarshal([]byte(ctx.PostForm("size_variants")), &product.SizeVariants)

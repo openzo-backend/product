@@ -11,6 +11,7 @@ type ProductRepository interface {
 	CreateProduct(Product models.Product) (models.Product, error)
 	GetProductByID(id string) (models.Product, error)
 	GetProductsByStoreID(id string) ([]models.Product, error)
+	GetPostByPincode(pincode string) ([]models.Product, error)
 	UpdateProduct(Product models.Product) (models.Product, error)
 	UpdateDisplayOrder(id string, displayOrder int) error
 	ChangeProductQuantity(id string, quantity int) error
@@ -66,6 +67,27 @@ func (r *productRepository) GetProductsByStoreID(storeID string) ([]models.Produ
 		Where("store_id = ?", storeID).
 		Order("category ASC, display_order ASC").
 		Find(&products)
+	if tx.Error != nil {
+		return []models.Product{}, tx.Error
+	}
+
+	return products, nil
+}
+
+func (r *productRepository) GetPostByPincode(pincode string) ([]models.Product, error) {
+	var products []models.Product
+
+	// product of type == post is a Post
+	// product has field store_id which is the id of the store, store has field pincode
+	// so we can join product and store on store_id and then filter by store.pincode
+
+	tx := r.db.Preload("Images").
+		Where("products.type = ?", "post").
+		Joins("JOIN stores ON products.store_id = stores.id").
+		Where("stores.pincode = ? ", pincode).
+		Order("products.created_at DESC").
+		Find(&products)
+
 	if tx.Error != nil {
 		return []models.Product{}, tx.Error
 	}
