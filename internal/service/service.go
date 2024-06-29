@@ -18,7 +18,7 @@ type ProductService interface {
 	CreateProduct(ctx *gin.Context, req models.Product) (models.Product, error)
 	GetProductByID(ctx *gin.Context, id string) (models.Product, error)
 	GetProductsByStoreID(ctx *gin.Context, storeID string) ([]models.Product, error)
-	GetPostByPincode(ctx *gin.Context, pincode string) ([]models.Product, error)
+	GetPostByPincode(ctx *gin.Context, pincode string) ([]repository.ProductWithStore, error)
 	ChangeProductQuantity(ctx *gin.Context, id string, quantity int) error
 	UpdateProduct(ctx *gin.Context, req models.Product) (models.Product, error)
 	UpdateDisplayOrder(ctx *gin.Context, id string, displayOrder int) error
@@ -56,10 +56,10 @@ func (s *productService) GetProductsByStoreID(ctx *gin.Context, storeID string) 
 	return Products, nil
 }
 
-func (s *productService) GetPostByPincode(ctx *gin.Context, pincode string) ([]models.Product, error) {
+func (s *productService) GetPostByPincode(ctx *gin.Context, pincode string) ([]repository.ProductWithStore, error) {
 	Products, err := s.ProductRepository.GetPostByPincode(pincode)
 	if err != nil {
-		return []models.Product{}, err
+		return []repository.ProductWithStore{}, err
 	}
 
 	return Products, nil

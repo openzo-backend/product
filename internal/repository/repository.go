@@ -11,7 +11,7 @@ type ProductRepository interface {
 	CreateProduct(Product models.Product) (models.Product, error)
 	GetProductByID(id string) (models.Product, error)
 	GetProductsByStoreID(id string) ([]models.Product, error)
-	GetPostByPincode(pincode string) ([]models.Product, error)
+	GetPostByPincode(pincode string) ([]ProductWithStore, error)
 	UpdateProduct(Product models.Product) (models.Product, error)
 	UpdateDisplayOrder(id string, displayOrder int) error
 	ChangeProductQuantity(id string, quantity int) error
@@ -74,14 +74,37 @@ func (r *productRepository) GetProductsByStoreID(storeID string) ([]models.Produ
 	return products, nil
 }
 
-func (r *productRepository) GetPostByPincode(pincode string) ([]models.Product, error) {
-	var products []models.Product
+type StoreBasicDetails struct {
+	StoreId    string `json:"storee_id"`
+	StoreName  string `json:"store_name"`
+	StoreImage string `json:"store_image"`
+
+	StoreAddress string `json:"store_address"`
+
+	StoreCategory    string `json:"store_category" gorm:"default:general_store'"`
+	StoreSubCategory string `json:"store_sub_category" gorm:"default:general_store'"`
+
+	StoreDescription string  `json:"store_description"`
+	StoreRating      float64 `json:"store_rating" gorm:"default:0"`
+	StoreReviewCount int     `json:"store_review_count" gorm:"default:0"`
+}
+
+type ProductWithStore struct {
+	models.Product
+	StoreBasicDetails
+}
+
+func (r *productRepository) GetPostByPincode(pincode string) ([]ProductWithStore, error) {
+	var products []ProductWithStore
 
 	// product of type == post is a Post
 	// product has field store_id which is the id of the store, store has field pincode
 	// so we can join product and store on store_id and then filter by store.pincode
 
-	tx := r.db.Preload("Images").
+	tx := r.db.
+		Model(&models.Product{}).
+		Select("products.*, stores.id as storee_id, stores.name as store_name, stores.image as store_image, stores.address as store_address, stores.category as store_category, stores.sub_category as store_sub_category, stores.description as store_description, stores.rating as store_rating, stores.review_count as store_review_count").
+		Preload("Images").
 		Where("products.type = ?", "post").
 		Joins("JOIN stores ON products.store_id = stores.id").
 		Where("stores.pincode = ? ", pincode).
@@ -89,7 +112,7 @@ func (r *productRepository) GetPostByPincode(pincode string) ([]models.Product, 
 		Find(&products)
 
 	if tx.Error != nil {
-		return []models.Product{}, tx.Error
+		return []ProductWithStore{}, tx.Error
 	}
 
 	return products, nil
