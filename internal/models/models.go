@@ -23,9 +23,12 @@ type Product struct {
 	MetaTags        string         `json:"meta_tags,omitempty"`
 	VegType         string         `json:"veg_type,omitempty"`
 	Servers         int            `json:"servers,omitempty"`
-	OutOfStock      bool           `json:"out_of_stock" gorm:"default:false"`
+	OutOfStock      bool            `json:"out_of_stock" gorm:"default:false"`
 	ProductPrivate
 }
+
+
+
 
 type ProductPrivate struct {
 	MSRP             int    `json:"msrp,omitempty"`

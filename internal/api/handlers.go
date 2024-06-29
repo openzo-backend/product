@@ -111,8 +111,11 @@ func (h *Handler) UpdateProduct(ctx *gin.Context) {
 	product.SizeVariants = []models.SizeVariant{}
 	product.ColorVariants = []models.ColorVariant{}
 	product.Images = []models.ProductImage{}
+
 	product.OutOfStock = ctx.PostForm("out_of_stock") == "true"
 
+
+	json.Unmarshal([]byte(ctx.PostForm("product_images")), &product.Images)
 	json.Unmarshal([]byte(ctx.PostForm("size_variants")), &product.SizeVariants)
 	json.Unmarshal([]byte(ctx.PostForm("color_variants")), &product.ColorVariants)
 

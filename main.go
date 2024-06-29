@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/tanush-128/openzo_backend/product/config"
 	handlers "github.com/tanush-128/openzo_backend/product/internal/api"
-	"github.com/tanush-128/openzo_backend/product/internal/middlewares"
 	"github.com/tanush-128/openzo_backend/product/internal/pb"
 	"github.com/tanush-128/openzo_backend/product/internal/repository"
 	"github.com/tanush-128/openzo_backend/product/internal/service"
@@ -58,13 +57,13 @@ func main() {
 	// reflection.Register(grpcServer) // Optional for server reflection
 
 	//Initialize gRPC client
-	conn, err := grpc.Dial(cfg.UserGrpc, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
-	defer conn.Close()
-	c := pb.NewUserServiceClient(conn)
-	UserClient = c
+	// conn, err := grpc.Dial(cfg.UserGrpc, grpc.WithInsecure())
+	// if err != nil {
+	// 	log.Fatalf("did not connect: %v", err)
+	// }
+	// defer conn.Close()
+	// c := pb.NewUserServiceClient(conn)
+	// UserClient = c
 
 	imageConn, err := grpc.Dial(cfg.ImageGrpc, grpc.WithInsecure())
 	if err != nil {
@@ -93,7 +92,7 @@ func main() {
 	router.POST("/", handler.CreateProduct)
 	router.GET("/store/:id", handler.GetProductsByStoreID)
 	router.GET("/:id", handler.GetProductByID)
-	router.Use(middlewares.NewMiddleware(c).JwtMiddleware)
+	// router.Use(middlewares.NewMiddleware(c).JwtMiddleware)
 	router.PUT("/:id", handler.ChangeProductQuantity)
 	router.PUT("/", handler.UpdateProduct)
 	router.PUT("/display_order/:id", handler.UpdateDisplayOrder)

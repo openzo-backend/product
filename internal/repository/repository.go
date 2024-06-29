@@ -107,9 +107,26 @@ func (r *productRepository) DeleteProduct(id string) error {
 
 func (r *productRepository) UpdateProduct(Product models.Product) (models.Product, error) {
 
-	tx := r.db.Session(&gorm.Session{FullSaveAssociations: true}).Save(&Product)
-	if tx.Error != nil {
-		return models.Product{}, tx.Error
+	// update all images
+
+	tx := r.db.Model(&Product).Association("Images").Replace(Product.Images)
+	if tx != nil {
+		return models.Product{}, tx
+	}
+
+	tx = r.db.Model(&Product).Association("SizeVariants").Replace(Product.SizeVariants)
+	if tx != nil {
+		return models.Product{}, tx
+	}
+
+	tx = r.db.Model(&Product).Association("ColorVariants").Replace(Product.ColorVariants)
+	if tx != nil {
+		return models.Product{}, tx
+	}
+
+	tx1 := r.db.Session(&gorm.Session{FullSaveAssociations: true}).Save(&Product)
+	if tx1.Error != nil {
+		return models.Product{}, tx1.Error
 	}
 
 	return Product, nil

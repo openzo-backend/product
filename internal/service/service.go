@@ -89,17 +89,18 @@ func writeProductToKafka(p *kafka.Producer, product models.Product) {
 
 func (s *productService) UpdateProduct(ctx *gin.Context, req models.Product) (models.Product, error) {
 
-	product, err := s.ProductRepository.GetProductByID(req.ID)
-	if err != nil {
-		return models.Product{}, err
-	}
+	// product, err := s.ProductRepository.GetProductByID(req.ID)
+	// if err != nil {
+	// 	return models.Product{}, err
+	// }
+	log.Printf("Product Images: %+v", req.Images)
 
 	form, err := ctx.MultipartForm()
 	if err != nil {
 
 		return models.Product{}, err
 	}
-	req.Images = []models.ProductImage{}
+
 	for _, file := range form.File["images"] {
 		log.Println(file.Filename)
 
@@ -121,14 +122,12 @@ func (s *productService) UpdateProduct(ctx *gin.Context, req models.Product) (mo
 
 	}
 
-	req.Images = append(req.Images, product.Images...)
-
 	updatedProduct, err := s.ProductRepository.UpdateProduct(req)
 	if err != nil {
 		return models.Product{}, err
 	}
+	// updatedProduct.Images = req.Images
 
-	updatedProduct.Images = req.Images
 	go writeProductToKafka(s.kafkaProducer, updatedProduct)
 	return updatedProduct, nil
 }
@@ -148,7 +147,7 @@ func (s *productService) BatchUpdateDisplayOrder(ctx *gin.Context, updates []mod
 	if err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
