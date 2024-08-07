@@ -64,12 +64,57 @@ func (r *productRepository) GetProductsByStoreID(storeID string) ([]models.Produ
 	tx := r.db.Preload("Images").
 		Preload("SizeVariants").
 		Preload("ColorVariants").
+		Preload("InventoryTransactions").
 		Where("store_id = ?", storeID).
 		Order("category ASC, display_order ASC").
 		Find(&products)
 	if tx.Error != nil {
 		return []models.Product{}, tx.Error
 	}
+
+	for i, product := range products {
+		var totalQuantity int
+		for _, transaction := range product.InventoryTransactions {
+			totalQuantity += transaction.Quantity
+		}
+		products[i].Quantity = totalQuantity
+	}
+
+	// 	type InventoryTransaction struct {
+	// 	ID        string `json:"id" gorm:"primaryKey"`
+	// 	ProductID string `json:"product_id" gorm:"size:36;index"`
+	// 	Quantity  int    `json:"quantity" gorm:"not null"`
+	// 	Price     int    `json:"price" gorm:"not null"`
+
+	// 	// TransactionType can be one of the following:
+	// 	// 1. INVENTORY_ADJUSTMENT
+	// 	// 2. PURCHASE
+	// 	// 3. SALE
+	// 	// 4. RETURN
+	// 	TransactionType string `json:"transaction_type" gorm:"not null"`
+	// 	Description     string `json:"description" gorm:"type:text"`
+	// 	CreatedAt       time.Time
+	// }
+
+	// var inventoryTransactions []models.InventoryTransaction
+	// subQuery := r.db.Model(&models.Product{}).Select("id").Where("store_id = ?", storeID)
+	// tx = r.db.Where("product_id IN (?)", subQuery).Find(&inventoryTransactions)
+
+	// if tx.Error != nil {
+	// 	return []models.Product{}, tx.Error
+	// }
+
+	// for i, product := range products {
+	// 	for _, transaction := range inventoryTransactions {
+	// 		if product.ID == transaction.ProductID {
+	// 			fmt.Println("transaction.ProductID %+v", transaction)
+	// 			products[i].Quantity += transaction.Quantity
+
+	// 			products[i].InventoryTransactions = append(products[i].InventoryTransactions, transaction)
+	// 		}
+	// 	}
+
+	// }
 
 	return products, nil
 }

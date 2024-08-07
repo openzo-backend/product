@@ -16,9 +16,6 @@ import (
 
 var UserClient pb.UserServiceClient
 
-type User2 struct {
-}
-
 func main() {
 
 	cfg, err := config.LoadConfig()
@@ -56,7 +53,7 @@ func main() {
 
 	// reflection.Register(grpcServer) // Optional for server reflection
 
-	//Initialize gRPC client
+	// Initialize gRPC client
 	// conn, err := grpc.Dial(cfg.UserGrpc, grpc.WithInsecure())
 	// if err != nil {
 	// 	log.Fatalf("did not connect: %v", err)
@@ -78,6 +75,12 @@ func main() {
 	go service.GrpcServer(cfg, &service.Server{
 		ProductRepository: productRepository,
 	})
+
+	// Initialize Inventory Repository and Service
+	inventoryTransactionRepository := repository.NewInventoryTransactionRepository(db)
+	inventoryService := service.NewInventoryService(inventoryTransactionRepository)
+	inventoryHandler := handlers.NewInventoryHandler(&inventoryService)
+
 	// Initialize HTTP server with Gin
 	router := gin.Default()
 	handler := handlers.NewHandler(&productService)
@@ -99,6 +102,13 @@ func main() {
 	router.PUT("/display_order/:id", handler.UpdateDisplayOrder)
 	router.PUT("/display_order/batch", handler.BatchUpdateDisplayOrder)
 	router.DELETE("/:id", handler.DeleteProduct)
+
+	// Inventory routes
+	router.POST("/inventory", inventoryHandler.CreateInventoryTransaction)
+	router.GET("/inventory/:id", inventoryHandler.GetInventoryTransactionByID)
+	router.PUT("/inventory/:id", inventoryHandler.UpdateInventoryTransaction)
+	router.DELETE("/inventory/:id", inventoryHandler.DeleteInventoryTransaction)
+	router.GET("/inventory/product/:product_id", inventoryHandler.GetAllTransactionsByProductID)
 
 	// router.Use(middlewares.JwtMiddleware)
 

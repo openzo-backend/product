@@ -34,6 +34,7 @@ func connectToDB(cfg *config.Config) (*gorm.DB, error) {
 		}
 	}
 	db.Migrator().AutoMigrate(&models.Product{})
+	db.Migrator().AutoMigrate(&models.InventoryTransaction{})
 	db.Migrator().AutoMigrate(&models.ProductImage{})
 	db.Migrator().AutoMigrate(&models.SizeVariant{})
 	db.Migrator().AutoMigrate(&models.ColorVariant{})

@@ -23,18 +23,32 @@ type Product struct {
 	MetaTags        string         `json:"meta_tags,omitempty"`
 	VegType         string         `json:"veg_type,omitempty"`
 	Servers         int            `json:"servers,omitempty"`
-	OutOfStock      bool            `json:"out_of_stock" gorm:"default:false"`
+	OutOfStock      bool           `json:"out_of_stock" gorm:"default:false"`
 	ProductPrivate
 }
 
+type InventoryTransaction struct {
+	ID        string `json:"id" gorm:"primaryKey"`
+	ProductID string `json:"product_id" gorm:"size:36;index"`
+	Quantity  int    `json:"quantity" gorm:"not null"`
+	Price     int    `json:"price" gorm:"not null"`
 
-
+	// TransactionType can be one of the following:
+	// 1. INVENTORY_ADJUSTMENT
+	// 2. PURCHASE
+	// 3. SALE
+	// 4. RETURN
+	TransactionType string    `json:"transaction_type" gorm:"not null"`
+	Description     string    `json:"description" gorm:"type:text"`
+	CreatedAt       time.Time `json:"created_at"`
+}
 
 type ProductPrivate struct {
-	MSRP             int    `json:"msrp,omitempty"`
-	Quantity         int    `json:"quantity,omitempty"`
-	CriticalQuantity int    `json:"critical_quantity,omitempty"`
-	CustomCode       string `json:"custom_code,omitempty"`
+	MSRP                  int                    `json:"msrp,omitempty"`
+	Quantity              int                    `json:"quantity,omitempty"`
+	CriticalQuantity      int                    `json:"critical_quantity,omitempty"`
+	CustomCode            string                 `json:"custom_code,omitempty"`
+	InventoryTransactions []InventoryTransaction `json:"inventory_transactions,omitempty"`
 }
 
 type SizeVariant struct {
